@@ -1,1 +1,78 @@
-@echo off\nREM Unity Game Modifier - Auto Start Script (Windows)\n\necho.\necho ========================================\necho   Unity Game Modifier - Auto Start\necho ========================================\necho.\n\nREM Check if Python is installed\npython --version >nul 2>&1\nif errorlevel 1 (\n    echo ❌ Python is not installed. Please install Python 3.8+\n    echo    Download from: https://www.python.org/downloads/\n    pause\n    exit /b 1\n)\n\nREM Check if Node is installed\nnode --version >nul 2>&1\nif errorlevel 1 (\n    echo ❌ Node.js is not installed. Please install Node.js 16+\n    echo    Download from: https://nodejs.org/\n    pause\n    exit /b 1\n)\n\necho ✅ Python and Node.js found\necho.\n\nREM Setup and start backend\necho 📦 Setting up backend...\ncd backend\n\nif not exist \"venv\" (\n    echo Creating virtual environment...\n    python -m venv venv\n)\n\ncall venv\\Scripts\\activate.bat\npip install -q -r requirements.txt\n\necho 🚀 Starting backend server...\nstart \"Unity Game Modifier - Backend\" python app.py\n\ncd ..\n\nREM Wait for backend to start\ntimeout /t 2 /nobreak\n\nREM Setup and start frontend\necho.\necho 📦 Setting up frontend...\ncd frontend\n\nif not exist \"node_modules\" (\n    echo Installing npm dependencies...\n    call npm install -q\n)\n\necho 🚀 Starting frontend...\nstart \"Unity Game Modifier - Frontend\" npm start\n\ncd ..\n\necho.\necho ========================================\necho ✅ Unity Game Modifier is starting!\necho.\necho    Backend:  http://localhost:5000\necho    Frontend: http://localhost:3000\necho.\necho Frontend will open automatically in your browser.\necho Close both windows to stop the application.\necho ========================================\necho.\n\npause\n"
+@echo off
+REM Unity Game Modifier - Auto Start Script (Windows)
+
+echo.
+echo ========================================
+echo   Unity Game Modifier - Auto Start
+echo ========================================
+echo.
+
+REM Check if Python is installed
+python --version >nul 2>&1
+if errorlevel 1 (
+    echo ❌ Python is not installed. Please install Python 3.8+
+    echo    Download from: https://www.python.org/downloads/
+    pause
+    exit /b 1
+)
+
+REM Check if Node is installed
+node --version >nul 2>&1
+if errorlevel 1 (
+    echo ❌ Node.js is not installed. Please install Node.js 16+
+    echo    Download from: https://nodejs.org/
+    pause
+    exit /b 1
+)
+
+echo ✅ Python and Node.js found
+echo.
+
+REM Setup and start backend
+echo 📦 Setting up backend...
+cd backend
+
+if not exist "venv" (
+    echo Creating virtual environment...
+    python -m venv venv
+)
+
+call venv\Scripts\activate.bat
+pip install -q -r requirements.txt
+
+echo 🚀 Starting backend server...
+start "Unity Game Modifier - Backend" python app.py
+
+cd ..
+
+REM Wait for backend to start
+timeout /t 2 /nobreak
+
+REM Setup and start frontend
+echo.
+echo 📦 Setting up frontend...
+cd frontend
+
+if not exist "node_modules" (
+    echo Installing npm dependencies...
+    call npm install -q
+)
+
+echo 🚀 Starting frontend...
+start "Unity Game Modifier - Frontend" npm start
+
+cd ..
+
+echo.
+echo ========================================
+echo ✅ Unity Game Modifier is starting!
+echo.
+echo    Backend:  http://localhost:5000
+echo    Frontend: http://localhost:3000
+echo.
+echo Frontend will open automatically in your browser.
+echo Close both windows to stop the application.
+echo ========================================
+echo.
+
+pause
