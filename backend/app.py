@@ -1,100 +1,50 @@
-from flask import Flask, request, jsonify
+"""
+Unity Game Modifier - Backend API Server
+"""
+from flask import Flask, jsonify, request
 from flask_cors import CORS
-import psutil
 import os
-from dotenv import load_dotenv
-
-load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
 
-# Store process information
-current_process = None
-
-@app.route('/api/processes', methods=['GET'])
-def get_processes():
-    """Get list of running processes"""
-    try:
-        processes = []
-        for proc in psutil.process_iter(['pid', 'name', 'exe']):
-            try:
-                if 'Unity' in proc.info['name'] or 'Game' in proc.info['name']:
-                    processes.append({
-                        'pid': proc.info['pid'],
-                        'name': proc.info['name'],
-                        'exe': proc.info['exe']
-                    })
-            except (psutil.NoSuchProcess, psutil.AccessDenied):
-                pass
-        return jsonify({'processes': processes})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-@app.route('/api/process/select', methods=['POST'])
-def select_process():
-    """Select a process to modify"""
-    try:
-        data = request.json
-        pid = data.get('pid')
-        
-        current_process = psutil.Process(pid)
-        return jsonify({
-            'status': 'success',
-            'process': {
-                'pid': current_process.pid,
-                'name': current_process.name(),
-                'memory': current_process.memory_info().rss / 1024 / 1024  # MB
-            }
-        })
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-@app.route('/api/memory/scan', methods=['POST'])
-def scan_memory():
-    """Scan memory for a specific value"""
-    try:
-        data = request.json
-        value = data.get('value')
-        value_type = data.get('type', 'int')
-        
-        if not current_process:
-            return jsonify({'error': 'No process selected'}), 400
-        
-        # Memory scanning logic would go here
-        # This is a placeholder implementation
-        results = {
-            'addresses': [],
-            'count': 0
-        }
-        
-        return jsonify(results)
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-@app.route('/api/memory/modify', methods=['POST'])
-def modify_memory():
-    """Modify value at a specific memory address"""
-    try:
-        data = request.json
-        address = data.get('address')
-        new_value = data.get('value')
-        value_type = data.get('type', 'int')
-        
-        if not current_process:
-            return jsonify({'error': 'No process selected'}), 400
-        
-        # Memory modification logic would go here
-        # This is a placeholder implementation
-        
-        return jsonify({'status': 'success', 'message': f'Modified memory at {address}'})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
+# API Routes
 @app.route('/api/health', methods=['GET'])
-def health():
+def health_check():
     """Health check endpoint"""
-    return jsonify({'status': 'healthy'})
+    return jsonify({'status': 'ok', 'message': 'Backend is running'})
+
+@app.route('/api/games', methods=['GET'])
+def get_games():
+    """Get list of available games"""
+    return jsonify({
+        'games': [
+            {'id': 1, 'name': 'Unity Game Example', 'path': 'C:\\Games\\example'},
+        ]
+    })
+
+@app.route('/api/mods', methods=['GET'])
+def get_mods():
+    """Get available mods"""
+    return jsonify({
+        'mods': [
+            {'id': 1, 'name': 'Example Mod', 'version': '1.0.0'},
+        ]
+    })
+
+@app.route('/api/apply-mod', methods=['POST'])
+def apply_mod():
+    """Apply a mod to a game"""
+    data = request.get_json()
+    game_id = data.get('game_id')
+    mod_id = data.get('mod_id')
+    
+    return jsonify({
+        'status': 'success',
+        'message': f'Mod {mod_id} applied to game {game_id}'
+    })
 
 if __name__ == '__main__':
-    app.run(debug=True, host='127.0.0.1', port=5000)
+    print("🚀 Unity Game Modifier Backend starting...")
+    print("📌 Running on http://localhost:5000")
+    app.run(debug=True, host='0.0.0.0', port=5000)
